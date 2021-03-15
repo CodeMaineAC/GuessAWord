@@ -11,6 +11,11 @@ namespace GuessAWord
         string[] words = {"apricot", "elephant", "tigress",
          "fortunate", "impossible", "historical",
          "colorful", "science"};
+
+        //Array of allowed charcters
+        char[] letters = {'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k',
+         'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'};
+
         //Gets a random word from the array
         Random RandomClass = new Random();
         int randomNumber;
@@ -25,7 +30,7 @@ namespace GuessAWord
         char tempChar;
         int foundCount = 0;
         bool letterInWord;
-
+        bool isLetter;
         public WordGuess()
         {
             randomNumber = RandomClass.Next(0, words.Length);
@@ -44,8 +49,25 @@ namespace GuessAWord
         {
             WriteLine("Word: {0}", guessedWord);
             Write("Guess a letter >> ");
-            guess = ReadLine();
+            guess = ReadLine().ToLower();
             letter = Convert.ToChar(guess.Substring(0, 1));
+        }
+
+        private void CheckIsAllowedChar()
+        {
+            int x;
+            isLetter = false;
+
+            for(x = 0; x < letters.Length; ++x)
+            {
+                if(letter == letters[x])
+                {
+                    isLetter = true;
+                    break;
+                }
+            }
+
+            if (!isLetter) throw (new NonLetterException(letter));
         }
 
         private void CheckLetter()
@@ -70,17 +92,29 @@ namespace GuessAWord
         {
             while (foundCount < selectedWord.Length)
             {
-                //User input for the character
-                GetGuessedLetter();
+                try
+                {
+                    //User input for the character
+                    GetGuessedLetter();
 
-                //Check to see if guessed letter is in the word
-                CheckLetter();
+                    //Check if letter is an allowed character
+                    CheckIsAllowedChar();
 
-                //Prompt user is the letter was in the word or not
-                if (letterInWord)
-                    WriteLine("Yes! {0} is in the word", letter);
-                else
-                    WriteLine("Sorry. {0} is not in the word", letter);
+                    //Check to see if guessed letter is in the word
+                    CheckLetter();
+                    //Prompt user is the letter was in the word or not
+                    if (letterInWord)
+                        WriteLine("Yes! {0} is in the word", letter);
+                    else
+                        WriteLine("Sorry. {0} is not in the word", letter);
+                }
+                catch(NonLetterException e)
+                {
+                    WriteLine(e.Message);
+                }
+               
+
+                
             }
             WriteLine("Good job! Word was {0}", originalWord);
         }
